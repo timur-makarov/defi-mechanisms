@@ -26,27 +26,36 @@ contract CPAMM {
             "CPAMM: invalid address"
         );
 
-        uint reserve0 = token0.balanceOf(address(this));
-        uint reserve1 = token1.balanceOf(address(this));
+        uint256 reserve0 = token0.balanceOf(address(this));
+        uint256 reserve1 = token1.balanceOf(address(this));
 
-        (IERC20 tokenIn, IERC20 tokenOut, uint reserveIn, uint reserveOut) = 
-        _tokenIn == address(token0) 
-        ? (token0, token1, reserve0, reserve1) 
-        : (token1, token0, reserve1, reserve0);
+        (
+            IERC20 tokenIn,
+            IERC20 tokenOut,
+            uint256 reserveIn,
+            uint256 reserveOut
+        ) = _tokenIn == address(token0)
+                ? (token0, token1, reserve0, reserve1)
+                : (token1, token0, reserve1, reserve0);
 
         tokenIn.transferFrom(msg.sender, address(this), amountIn);
 
-        uint realAmountIn = tokenIn.balanceOf(address(this)) - reserveIn;
-        uint amountInWithFee = (realAmountIn * 997) / 1000; // 0.3% fee
+        uint256 realAmountIn = tokenIn.balanceOf(address(this)) - reserveIn;
+        uint256 amountInWithFee = (realAmountIn * 997) / 1000; // 0.3% fee
 
-        amountOut = (reserveOut * amountInWithFee) / (reserveIn + amountInWithFee);
+        amountOut =
+            (reserveOut * amountInWithFee) /
+            (reserveIn + amountInWithFee);
 
         tokenOut.transfer(msg.sender, amountOut);
     }
 
-    function addLiquidity(uint amount0, uint amount1) external returns (uint shares) {
-        uint reserve0 = token0.balanceOf(address(this));
-        uint reserve1 = token1.balanceOf(address(this));
+    function addLiquidity(uint256 amount0, uint256 amount1)
+        external
+        returns (uint256 shares)
+    {
+        uint256 reserve0 = token0.balanceOf(address(this));
+        uint256 reserve1 = token1.balanceOf(address(this));
 
         token0.transferFrom(msg.sender, address(this), amount0);
         token1.transferFrom(msg.sender, address(this), amount1);
@@ -65,15 +74,18 @@ contract CPAMM {
         _mint(msg.sender, shares);
     }
 
-    function removeLiquidity(uint shares) external returns (uint d0, uint d1) {
-        uint reserve0 = token0.balanceOf(address(this));
-        uint reserve1 = token1.balanceOf(address(this));
+    function removeLiquidity(uint256 shares)
+        external
+        returns (uint256 d0, uint256 d1)
+    {
+        uint256 reserve0 = token0.balanceOf(address(this));
+        uint256 reserve1 = token1.balanceOf(address(this));
 
         d0 = (reserve0 * shares) / totalSupply;
         d1 = (reserve1 * shares) / totalSupply;
 
         _burn(msg.sender, shares);
-        
+
         if (d0 > 0) {
             token0.transfer(msg.sender, d0);
         }
@@ -94,13 +106,13 @@ contract CPAMM {
     }
 }
 
-
-contract Token0 is ERC20("Token0", "ZERO"){
+contract Token0 is ERC20("Token0", "ZERO") {
     constructor() {
         _mint(msg.sender, 100000000);
     }
 }
-contract Token1 is ERC20("Token1", "ONE"){
+
+contract Token1 is ERC20("Token1", "ONE") {
     constructor() {
         _mint(msg.sender, 100000000);
     }

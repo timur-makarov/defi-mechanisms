@@ -25,14 +25,13 @@ contract CSAMM {
             "CSAMM: invalid address"
         );
 
-        uint reserve0 = token0.balanceOf(address(this));
-        uint reserve1 = token1.balanceOf(address(this));
+        uint256 reserve0 = token0.balanceOf(address(this));
+        uint256 reserve1 = token1.balanceOf(address(this));
 
-        (IERC20 tokenIn, IERC20 tokenOut, uint reserveIn) = 
-        _tokenIn == address(token0) 
-        ? (token0, token1, reserve0) 
-        : (token1, token0, reserve1);
-
+        (IERC20 tokenIn, IERC20 tokenOut, uint256 reserveIn) = _tokenIn ==
+            address(token0)
+            ? (token0, token1, reserve0)
+            : (token1, token0, reserve1);
 
         tokenIn.transferFrom(msg.sender, address(this), amountIn);
 
@@ -42,17 +41,22 @@ contract CSAMM {
         tokenOut.transfer(msg.sender, amountOut);
     }
 
-    function addLiquidity(uint amount0, uint amount1) external returns (uint shares) {
-        uint reserve0 = token0.balanceOf(address(this));
-        uint reserve1 = token1.balanceOf(address(this));
-        
+    function addLiquidity(uint256 amount0, uint256 amount1)
+        external
+        returns (uint256 shares)
+    {
+        uint256 reserve0 = token0.balanceOf(address(this));
+        uint256 reserve1 = token1.balanceOf(address(this));
+
         token0.transferFrom(msg.sender, address(this), amount0);
         token1.transferFrom(msg.sender, address(this), amount1);
 
         if (totalSupply == 0) {
-            shares  = amount0 + amount1;
+            shares = amount0 + amount1;
         } else {
-            shares = ((amount0 + amount1) * totalSupply) / (reserve0 + reserve1);
+            shares =
+                ((amount0 + amount1) * totalSupply) /
+                (reserve0 + reserve1);
         }
 
         require(shares > 0, "shares = 0");
@@ -60,15 +64,18 @@ contract CSAMM {
         _mint(msg.sender, shares);
     }
 
-    function removeLiquidity(uint shares) external returns (uint d0, uint d1) {
-        uint reserve0 = token0.balanceOf(address(this));
-        uint reserve1 = token1.balanceOf(address(this));
-        
+    function removeLiquidity(uint256 shares)
+        external
+        returns (uint256 d0, uint256 d1)
+    {
+        uint256 reserve0 = token0.balanceOf(address(this));
+        uint256 reserve1 = token1.balanceOf(address(this));
+
         d0 = (reserve0 * shares) / totalSupply;
         d1 = (reserve1 * shares) / totalSupply;
 
         _burn(msg.sender, shares);
-        
+
         if (d0 > 0) {
             token0.transfer(msg.sender, d0);
         }
@@ -77,7 +84,6 @@ contract CSAMM {
             token1.transfer(msg.sender, d1);
         }
     }
-
 
     function _mint(address to, uint256 amount) private {
         balanceOf[to] += amount;
@@ -90,13 +96,13 @@ contract CSAMM {
     }
 }
 
-
-contract Token0 is ERC20("Token0", "ZERO"){
+contract Token0 is ERC20("Token0", "ZERO") {
     constructor() {
         _mint(msg.sender, 100000000);
     }
 }
-contract Token1 is ERC20("Token1", "ONE"){
+
+contract Token1 is ERC20("Token1", "ONE") {
     constructor() {
         _mint(msg.sender, 100000000);
     }
